@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import date, time
 from cat.mad_hatter.decorators import plugin
@@ -6,8 +6,16 @@ from cat.mad_hatter.decorators import plugin
 
 # settings
 class AllertaVVFSettings(BaseModel):
-    login_token: str
-    api_url: str
+    login_token: str = Field(
+        default="",
+        title="Login Token",
+        description="Your login token for the Allerta VVF API",
+    )
+    api_url: str = Field(
+        default="http://localhost/api/",
+        title="API URL",
+        description="The base URL for the Allerta VVF API, with a trailing slash",
+    )
 
 
 # Give your settings model to the Cat.
