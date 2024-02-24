@@ -5,5 +5,6 @@
     "author_name": "me@matteogheza.it",
     "author_url": "https://github.com/matteogheza",
     "plugin_url": "https://github.com/allerta-vvf/cc-allerta-vvf",
-    "tags": "firefighter"
+    "tags": "firefighter",
+    "thumb": "https://raw.githubusercontent.com/allerta-vvf/cc-allerta-vvf/main/logo.png"
 }
