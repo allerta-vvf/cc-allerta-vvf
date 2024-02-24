@@ -1,0 +1,9 @@
+{
+    "name": "Allerta VVF",
+    "version": "0.0.0",
+    "description": "AllertaVVF integration for CC",
+    "author_name": "me@matteogheza.it",
+    "author_url": "https://github.com/matteogheza",
+    "plugin_url": "https://github.com/allerta-vvf/cc-allerta-vvf",
+    "tags": "firefighter"
+}
