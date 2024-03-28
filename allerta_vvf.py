@@ -71,20 +71,38 @@ def allertavvf_get_current_user_availability(input, cat):
     return f"Your availability is {availability}"
 
 @tool
-def allertavvf_get_last_n_service(input, cat):
+def allertavvf_search_in_services(input, cat):
     """
-    Reply to questions about getting or summarizing the last service or the last N services.
-    You must reply with the last service or the last N services, using the provided JSON data.
-    Example: "What is the last service?", "Ultimo intervento", "Ultimi 5 servizi" "Ottieni gli ultimi 3 interventi" "Riassumi l'ultimo intervento".
+    Reply to user questions about retrieving services (or services data).
+    You can use the following queries to search for services:
+    - "last": get the last n of services
+    - "from": get all services from a certain date
+    - "to": get all services until a certain date
+    The input is a dictionary with the query and the value, for example:
+    {"query": "last", "value": 5} for the question "Get the last 5 services"
+    {"query": "from", "value": "2021-01-01"} for the question "Get services data from 2021-01-01"
+    {"query": "to", "value": "2021-01-01"} for the question "Leggi gli interventi fino al 2021-01-01"
+    This tool returns the list of services that match the query, in JSON format.
     Reply in the language the user asked (if answer is in Italian, reply in Italian, if answer is in English, reply in English).
+    Every date passed in input should be in the format "YYYY-MM-DD".
     For each service, say at least the name of the chief if user asked to summarize the service.
     Transform the date into an human readable format.
-    Input is the number of services to return, or 1 if the user wants the last service.
+    If the list is empty, reply to the user saying that there are no services that match the query.
     """
+
+    #TODO: fix this prompt, it doesn't work in italian
+
+    # Parse JSON (like {"query": "last", "value": 4}) and get query and value
     try:
-        n = int(input)
-    except ValueError:
-        n = 1
+        data = json.loads(input)
+        query = data["query"]
+        value = data["value"]
+    except Exception as e:
+        log.error(e)
+
+    #TODO: implement the logic to get the services from the API, using endpoints to filter by query and value
+    
+    """
     response = api_request(cat, "services/last/"+str(n))
 
     keys_to_remove = [
@@ -104,6 +122,9 @@ def allertavvf_get_last_n_service(input, cat):
             c.pop("pivot", None)
     response = json.dumps(response, ensure_ascii=False)
     return response
+    """
+    
+    return "{}"
 
 @tool
 def allertavvf_what_is_allerta(input, cat):
