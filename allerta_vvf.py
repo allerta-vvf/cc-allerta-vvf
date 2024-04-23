@@ -2,6 +2,7 @@ from cat.mad_hatter.decorators import hook, tool
 from cat.log import log
 from cat.plugins.allerta_vvf.utils.client import api_request
 import json
+import urllib.parse
 
 ALLERTAVVF_EXPLANATION = """AllertaVVF,
 an unofficial open source firefighters' management software.
@@ -71,60 +72,41 @@ def allertavvf_get_current_user_availability(input, cat):
     return f"Your availability is {availability}"
 
 @tool
-def allertavvf_search_in_services(input, cat):
+def allertavvf_search_in_services(searchQueryText, cat):
     """
     Reply to user questions about retrieving services (or services data).
     You can use the following queries to search for services:
     - "last": get the last n of services
-    - "from": get all services from a certain date
-    - "to": get all services until a certain date
-    The input is a dictionary with the query and the value, for example:
-    {"query": "last", "value": 5} for the question "Get the last 5 services"
-    {"query": "from", "value": "2021-01-01"} for the question "Get services data from 2021-01-01"
-    {"query": "to", "value": "2021-01-01"} for the question "Leggi gli interventi fino al 2021-01-01"
-    This tool returns the list of services that match the query, in JSON format.
-    Reply in the language the user asked (if answer is in Italian, reply in Italian, if answer is in English, reply in English).
-    Every date passed in input should be in the format "YYYY-MM-DD".
-    For each service, say at least the name of the chief if user asked to summarize the service.
-    Transform the date into an human readable format.
-    If the list is empty, reply to the user saying that there are no services that match the query.
+    - "from": filter services from a certain date
+    - "to": filter services until a certain date
+    The input is list of dictionaries with the query and the value, for example:
+    [{"query": "last", "value": 5}] for the question "Get the last 5 services"
+    [{"query": "from", "value": "2021-01-01"}] for the question "Get services data from 2021-01-01"
+    [{"query": "to", "value": "2021-01-01"}] for the question "Leggi gli interventi fino al 2021-01-01"
+    The user can ask to filter using multiple queries, for example:
+    [{"query": "from", "value": "2021-01-01"}, {"query": "to", "value": "2021-01-31"}] for the question "Get services data from 2021-01-01 to 2021-01-31"
+    This tool returns the JSON representation of the search queries.
     """
 
-    #TODO: fix this prompt, it doesn't work in italian
-
-    # Parse JSON (like {"query": "last", "value": 4}) and get query and value
     try:
-        data = json.loads(input)
-        query = data["query"]
-        value = data["value"]
+        data = json.loads(searchQueryText)
     except Exception as e:
         log.error(e)
 
-    #TODO: implement the logic to get the services from the API, using endpoints to filter by query and value
-    
-    """
-    response = api_request(cat, "services/last/"+str(n))
+    return searchQueryText
 
-    keys_to_remove = [
-        "id", "chief_id", "place_id", "type_id",
-        "created_at", "added_by_id",
-        "updated_at", "updated_by_id",
-        "deleted_at", "deleted_by_id"
-    ]
-    for service in response:
-        for key in keys_to_remove:
-            service.pop(key, None)
-        place = service["place"]["display_name"]
-        service["place"] = place
-        for d in service["drivers"]:
-            d.pop("pivot", None)
-        for c in service["crew"]:
-            c.pop("pivot", None)
-    response = json.dumps(response, ensure_ascii=False)
-    return response
+@tool
+def allertavvf_retrieve_services_after_query_obtained(searchQueryText, cat):
     """
-    
-    return "{}"
+    Use this tool after the search_in_services tool to retrieve the services data.
+    Input is the JSON response from the previous tool.
+    Output is a JSON representation of the services data.
+    Return them in a human readable format, especially dates.
+    If there are no services, return "No services found".
+    """
+    response = api_request(cat, "services/?query="+urllib.parse.quote(searchQueryText)+"&external")
+
+    return json.dumps(response, ensure_ascii=False)
 
 @tool
 def allertavvf_what_is_allerta(input, cat):

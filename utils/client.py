@@ -12,6 +12,8 @@ def api_request(cat, url, method="GET", payload=None):
     response.raise_for_status()
     
     if response.headers['content-type'] == 'application/json':
-        return response.json()
+        response = response.json()
+        if "data" in response:
+            return response["data"]
     else:
         return response.text
